@@ -103,21 +103,71 @@ SpellPrompt2:
 HealthPrompt:
 	.ascii "\nHealth : \0"
 VictoryPrompt: 
-	.ascii " is the winner, now Voldemort will kill you since you are a threat!\n\0"
+	.ascii " is the winner, now Voldemort shall kill you since you are a threat to his motives!\n\0"
 SpellNames1:
-	.ascii "1. Average Wizard Punch        (10-20 damage, 90% chance of working)\n\0"
+	.ascii "1. Alarte Ascendare  (10-20 damage, 90% chance of working)\n\0"
 SpellNames2:	
-	.ascii "2. The Voldemort Deathbringer  (75-100 damage, 10% chance of working)\n\0"
+	.ascii "2. Confringo         (75-100 damage, 10% chance of working)\n\0"
 SpellNames3:	
-	.ascii "3. The Happy Face Heals        (10-20 heal, 50% chance of working)\n\0"
+	.ascii "3. Reparifors        (10-20 heal, 50% chance of working)\n\0"
 SpellNameQuestion:
 	.ascii "Which spell do you want on the other player? (Type in 1,2,3)\n\0"
 FailSpell:
 	.ascii "Patheic your spell failed and does nothing.\n\0"
+BroomstickArt:
+	.ascii "            _            _.,----,\n"
+	.ascii " __  _.-._ / '-.        -  ,._  \)\n"
+	.ascii "|  `-)_   '-.   \       / < _ )/\"\ }\n"
+	.ascii "/__    '-.   \   '-, ___(c-(6)=(6)\n"
+	.ascii " , `'.    `._ '.  _,'   >\    \"\  )\n"
+	.ascii " :;;,,'-._   '---' (  ( \"\/`. -='/\n"
+	.ascii ";:;;:;;,  '..__    ,`-.`)'- '--'\n"
+	.ascii ";';:;;;;;'-._ /'._|   Y/   _/' \ \n"
+	.ascii "      '''\"\._ F    |  _/ _.'._   `\ \n"
+	.ascii "             L    \   \/     '._  \ \n"
+	.ascii "      .-,-,_ |     `.  `'---,  \_ _|\n"
+	.ascii "      //    'L    /  \,   (\"\--',=`)7\n"
+	.ascii "     | `._       : _,  \  /'`-._L,_'-._\n"
+	.ascii "     '--' '-.\__/ _L   .`'         './/\n"
+	.ascii "                 [ (  /\n"
+	.ascii "                  ) `{\n"
+	.ascii "                  \__)\n\0"
+Explosion:
+	.ascii "     _.-^^---....,,--       \n"
+	.ascii " _--                  --_  \n"
+	.ascii "<                        >)\n"
+	.ascii "|                         | \n"
+	.ascii " \._                   _./  \n"
+	.ascii "    ```--. . , ; .--'''      \n"
+	.ascii "          | |   |             \n"
+	.ascii "       .-=||  | |=-.   \n"
+	.ascii "       `-=#$%&%$#=-'   \n"
+	.ascii "          | ;  :|     \n"
+	.ascii " _____.,-#%&$@%#&#~,._____\n\0"
+Award:
+	.ascii "     _______________\n"
+	.ascii "    |@@@@|     |####|\n"
+	.ascii "    |@@@@|     |####|\n"
+	.ascii "    |@@@@|     |####|\n"
+	.ascii "    \\\@@@@|     |####/ \n"
+	.ascii "     \\\@@@|     |###/ \n"
+	.ascii "      `@@|_____|##' \n"
+	.ascii "           (O) \n"
+	.ascii "        .-'''''-. \n"
+	.ascii "      .'  * * *  `. \n"
+	.ascii "     :  *       *  : \n"
+	.ascii "    : ~ D E A T H ~ : \n"
+	.ascii "    : ~ A W A R D ~ : \n"
+	.ascii "     :  *       *  : \n"
+	.ascii "      `.  * * *  .' \n"
+	.ascii "        `-.....-' \n\0"
+
 .text
 .global _start
 _start:
 	lea rdx, Welcome          #Prompts user of program's function
+	call PrintZString
+	lea rdx, BroomstickArt
 	call PrintZString
 	lea rdx, PlayersQuestion #Asks user for how many players are being used (Max:10)
 	call PrintZString
@@ -237,6 +287,8 @@ Spell2:
 	sub rbx, rdx
 	mov [PlayersHealth+rax*8], rbx
 	mov r11,rdx
+	lea rdx, Explosion
+	call PrintZString
 	lea rdx, SpellPrompt
 	call PrintZString
 	mov rdx, 1
@@ -310,6 +362,8 @@ VictoryLoop:
 	jmp VictoryLoop
 
 Victory:
+	lea rdx, Award
+	call PrintZString
 	mov rdx, [PlayerColors+r8*8] #Prints out the winner of this brawl
 	call SetForeColor
 	mov rdx, [Players+r8*8]
