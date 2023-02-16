@@ -1,6 +1,6 @@
 #Rai, Jashan
 #WizardBattle.asm
-#Version 0.5 (Beta)
+#Version 1.0
 
 .intel_syntax noprefix
 .data
@@ -52,25 +52,25 @@ Player9:
 Player10:
 	.ascii "Player 10 \0"
 Player1Name: 
-	.ascii "Christopher Janson\n\0"
+	.ascii "Christopher Janson\0"
 Player2Name:
-	.ascii "Lark Hamnet\n\0"
+	.ascii "Lark Hamnet\0"
 Player3Name:
-	.ascii "Marinda Rayner\n\0"
+	.ascii "Marinda Rayner\0"
 Player4Name:
-	.ascii "Phillipa Defroest\n\0"
+	.ascii "Phillipa Defroest\0"
 Player5Name:
-	.ascii "Kirk Elyzabeth\n\0"
+	.ascii "Kirk Elyzabeth\0"
 Player6Name:
-	.ascii "Garnett Kaley\n\0"
+	.ascii "Garnett Kaley\0"
 Player7Name:
-	.ascii "Brielle Trudy\n\0"
+	.ascii "Brielle Trudy\0"
 Player8Name:
-	.ascii "Rosy Lex\n\0"
+	.ascii "Rosy Lex\0"
 Player9Name:
-	.ascii "Anselm Fanny\n\0"
+	.ascii "Anselm Fanny\0"
 Player10Name:
-	.ascii "Hope Eryn\n\0"
+	.ascii "Hope Eryn\0"
 PlayerColors:
 	.quad 1
 	.quad 3
@@ -101,17 +101,17 @@ SpellPrompt:
 SpellPrompt2:
 	.ascii " points\n\0"
 HealthPrompt:
-	.ascii "Health : \0"
+	.ascii "\nHealth : \0"
 VictoryPrompt: 
 	.ascii " is the winner, now Voldemort will kill you since you are a threat!\n\0"
 SpellNames1:
-	.ascii "1. Average Wizard Punch        (10 damage, 90% chance of working)\n\0"
+	.ascii "1. Average Wizard Punch        (10-20 damage, 90% chance of working)\n\0"
 SpellNames2:	
-	.ascii "2. The Voldemort Deathbringer  (75 damage, 10% chance of working)\n\0"
+	.ascii "2. The Voldemort Deathbringer  (75-100 damage, 10% chance of working)\n\0"
 SpellNames3:	
-	.ascii "3. The Happy Face Heals        (20 pts heal, 50% chace of working)\n\0"
+	.ascii "3. The Happy Face Heals        (10-20 pts heal, 50% chace of working)\n\0"
 SpellNameQuestion:
-	.ascii "\nWhich spell do you want on the other player?(Type in 1,2,3)\n\0"
+	.ascii "\nWhich spell do you want on the other player? (Type in 1,2,3)\n\0"
 FailSpell:
 	.ascii "Patheic your spell failed and does nothing.\n\0"
 .text
@@ -140,11 +140,12 @@ AddingHealth:
 	mov rsi, 0 #Initializes register for later use
 	mov rdi, 0
 	mov r8, 0
-
+	mov r9, AmountofPlayers
+	sub r9, 1
 
 Action:
-	mov rcx, [PlayersHealth + rsi * 8] #First checks if player is dead, if true, skips this part
-	cmp rcx, 0
+	mov rcx, [PlayersHealth+rsi*8]
+	cmp rcx,0
 	jle Death
 	mov rdx, [PlayerColors+rsi*8] #Tells which player is playing
 	call SetForeColor
@@ -196,20 +197,24 @@ WhichSpell:
 Spell1:
 	mov rdx, 7
 	call SetForeColor
-	mov rdx, 9
+	mov rdx, 10
 	call Random
 	add rdx, 1
 	mov rbx, rdx
  	cmp rbx, 9
 	jg Spell4
-	mov rdx, [PlayersHealth+rax*8]
-	sub rdx, 10
-	mov [PlayersHealth + rax * 8], rdx
+	mov rdx, 10
+	call Random 
+	add rdx, 10
+	mov rbx, [PlayersHealth+rax*8]
+	sub rbx, rdx
+	mov [PlayersHealth + rax * 8], rbx
+	mov r11, rdx
 	lea rdx, SpellPrompt
 	call PrintZString
 	mov rdx, 1
 	call SetForeColor
-	mov rdx, 10
+	mov rdx, r11
 	call PrintInt
 	mov rdx, 7
 	call SetForeColor
@@ -220,20 +225,24 @@ Spell1:
 Spell2:
 	mov rdx, 7
 	call SetForeColor
-	mov rdx, 9
+	mov rdx, 10
 	call Random
 	add rdx, 1
 	mov rbx, rdx
 	cmp rbx, 1
 	jg Spell4
-	mov rdx, [PlayersHealth+rax*8]
-	sub rdx, 75
-	mov [PlayersHealth+rax*8], rdx
+	mov rdx, 25
+	call Random
+	add rdx, 75
+	mov rbx, [PlayersHealth+rax*8]
+	sub rbx, rdx
+	mov [PlayersHealth+rax*8], rbx
+	mov r11,rdx
 	lea rdx, SpellPrompt
 	call PrintZString
 	mov rdx, 1
 	call SetForeColor
-	mov rdx, 75
+	mov rdx, r11
 	call PrintInt
 	mov rdx, 7
 	call SetForeColor
@@ -244,20 +253,24 @@ Spell2:
 Spell3:
 	mov rdx, 7
 	call SetForeColor
-	mov rdx, 9
+	mov rdx, 10
 	call Random
 	add rdx, 1
 	mov rbx, rdx
 	cmp rbx, 5
 	jg Spell4
-	mov rdx, [PlayersHealth+rax*8]
-	add rdx, 20
-	mov [PlayersHealth+rax*8], rdx
+	mov rdx, 10
+	call Random
+	add rdx, 10
+	mov rbx, [PlayersHealth+rax*8]
+	add rbx, rdx
+	mov [PlayersHealth+rax*8], rbx
+	mov r11, rdx
 	lea rdx, SpellPrompt
 	call PrintZString
 	mov rdx, 3
 	call SetForeColor
-	mov rdx, 20
+	mov rdx, r11
 	call PrintInt
 	mov rdx, 7
 	call SetForeColor
@@ -275,7 +288,8 @@ Spell4:
 	
 
 Death:
-	add rdi, 1	 #If player dies, a tracker is kept with rdi
+	add rdi, 1 
+
 NextPlayer:	
 	add rsi, 1            #Checks if all the players have got a turn
 	cmp rsi, AmountofPlayers
@@ -283,10 +297,7 @@ NextPlayer:
 
 
 ActionLoop:
-	mov rdx, rdi #Checks if enough are dead to call victor, or sends it back to the warfare
-	mov rcx, AmountofPlayers
-	sub rcx, 1
-	cmp rdi, rcx
+	cmp rdi, r9
 	jge VictoryLoop
 	mov rsi, 0
 	mov rdi, 0
