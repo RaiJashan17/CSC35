@@ -8,7 +8,7 @@
 Welcome:
 	.ascii "Welcome to Voldemort's Wizard Battle where you decide your fates! Promgrammed by Jashan Rai, head of programming at Hogwarts!\n\0"
 PlayersQuestion:
-	.ascii "How many players will take on the challenge?\n\0"
+	.ascii "How many student's will take on the challenge (Be prepared to be paralyzed)?\n\0"
 Players:
 	.quad Player1
 	.quad Player2
@@ -109,22 +109,22 @@ SpellNames1:
 SpellNames2:	
 	.ascii "2. The Voldemort Deathbringer  (75-100 damage, 10% chance of working)\n\0"
 SpellNames3:	
-	.ascii "3. The Happy Face Heals        (10-20 pts heal, 50% chace of working)\n\0"
+	.ascii "3. The Happy Face Heals        (10-20 heal, 50% chance of working)\n\0"
 SpellNameQuestion:
-	.ascii "\nWhich spell do you want on the other player? (Type in 1,2,3)\n\0"
+	.ascii "Which spell do you want on the other player? (Type in 1,2,3)\n\0"
 FailSpell:
 	.ascii "Patheic your spell failed and does nothing.\n\0"
 .text
 .global _start
 _start:
-	lea rdx, Welcome #Prompts user of program's function
+	lea rdx, Welcome          #Prompts user of program's function
 	call PrintZString
 	lea rdx, PlayersQuestion #Asks user for how many players are being used (Max:10)
 	call PrintZString
 	mov rsi, 0
 	mov rdx, 4
 	call SetForeColor
-	call ScanInt
+	call ScanInt             #Asks user for amount of players
 	mov AmountofPlayers, rdx
 	mov rdx, 7
 	call SetForeColor
@@ -135,19 +135,19 @@ AddingHealth:
 	mov [PlayersHealth + rsi * 8], rdx
 	add rsi, 1
 	cmp AmountofPlayers, rsi
-	jg AddingHealth
+	jg AddingHealth                    #Continues Until all the players playing have 100
 
-	mov rsi, 0 #Initializes register for later use
+	mov rsi, 0                     #Initializes register for later use
 	mov rdi, 0
 	mov r8, 0
-	mov r9, AmountofPlayers
-	sub r9, 1
+	mov r9, AmountofPlayers  
+	sub r9, 1                      #Subtract 1 to show that this is many dead needed to end the game
 
 Action:
-	mov rcx, [PlayersHealth+rsi*8]
+	mov rcx, [PlayersHealth+rsi*8]  #Checks if player is dead and skips if they are 
 	cmp rcx,0
 	jle Death
-	mov rdx, [PlayerColors+rsi*8] #Tells which player is playing
+	mov rdx, [PlayerColors+rsi*8]   #Tells which player is playing
 	call SetForeColor
 	mov rdx, [Players + rsi * 8]
 	call PrintZString
@@ -155,7 +155,7 @@ Action:
 	call PrintZString
 	mov rdx, 7
 	call SetForeColor
-	lea rdx, HealthPrompt #Tells current health of player
+	lea rdx, HealthPrompt           #Tells current health of player
 	call PrintZString
 	mov rdx, 1
 	call SetForeColor
@@ -163,12 +163,11 @@ Action:
 	call PrintInt
 	mov rdx, 7
 	call SetForeColor
-	lea rdx, TargetPrompt
+	lea rdx, TargetPrompt           #Asks who they want to target for this round
 	call PrintZString
 	mov rdx, 4
 	call SetForeColor
 	call ScanInt
-	call PrintInt
 	mov rax, rdx
 	mov rdx, 7
 	call SetForeColor
@@ -185,7 +184,7 @@ WhichSpell:
 	call PrintZString
 	mov rdx, 4
 	call SetForeColor
-	call ScanInt
+	call ScanInt                 #Asks which spell that the user wants to attack with
 	cmp rdx, 1
 	je Spell1
 	cmp rdx, 2
@@ -198,13 +197,13 @@ Spell1:
 	mov rdx, 7
 	call SetForeColor
 	mov rdx, 10
-	call Random
+	call Random                  #Checks if the attack did indeed work, otherwise skips
 	add rdx, 1
 	mov rbx, rdx
  	cmp rbx, 9
 	jg Spell4
 	mov rdx, 10
-	call Random 
+	call Random                  #If the attack works, subtracts 10-20 health and moves to next player
 	add rdx, 10
 	mov rbx, [PlayersHealth+rax*8]
 	sub rbx, rdx
@@ -226,13 +225,13 @@ Spell2:
 	mov rdx, 7
 	call SetForeColor
 	mov rdx, 10
-	call Random
+	call Random                   #Checks if the attack did indeed work, otherwise skips
 	add rdx, 1
 	mov rbx, rdx
 	cmp rbx, 1
 	jg Spell4
 	mov rdx, 25
-	call Random
+	call Random                   #If the attack works, subtracts 75-100 health and moves to next player
 	add rdx, 75
 	mov rbx, [PlayersHealth+rax*8]
 	sub rbx, rdx
@@ -254,14 +253,14 @@ Spell3:
 	mov rdx, 7
 	call SetForeColor
 	mov rdx, 10
-	call Random
+	call Random                    #Checks if the health did indeed work, otherwise skips
 	add rdx, 1
 	mov rbx, rdx
 	cmp rbx, 5
 	jg Spell4
 	mov rdx, 10
-	call Random
-	add rdx, 10
+	call Random                    #If the heals works, add 10-20 health and moves to next player
+	add rdx, 10                    #Note:Not intended, but can restruct players, which is why 50/50 chance of working is added to stop restruction spam
 	mov rbx, [PlayersHealth+rax*8]
 	add rbx, rdx
 	mov [PlayersHealth+rax*8], rbx
@@ -279,7 +278,7 @@ Spell3:
 	jmp NextPlayer
 
 Spell4:
-	mov rdx, 7
+	mov rdx, 7        #If the spell failed, let's the user know and moves to next player
 	call SetForeColor
 	lea rdx, FailSpell
 	call PrintZString
@@ -288,25 +287,25 @@ Spell4:
 	
 
 Death:
-	add rdi, 1 
+	add rdi, 1               #If player is dead, adds a player to the grave register(Resets every loop, to avoid issues)
 
 NextPlayer:	
-	add rsi, 1            #Checks if all the players have got a turn
+	add rsi, 1               #Checks if all the players have got a turn
 	cmp rsi, AmountofPlayers
-	jl Action
+	jl Action                #If all players have not got a turn, moves back for other players
 
 
 ActionLoop:
-	cmp rdi, r9
-	jge VictoryLoop
-	mov rsi, 0
+	cmp rdi, r9     #Checks if enough are dead to declare winner
+	jge VictoryLoop #Note: Since this is checked at the end, player may have to play extra turn to make sure other player is dead before Voldemort calls them winner
+	mov rsi, 0      #Resets the index so it can start from player 1
 	mov rdi, 0
 	jmp Action
 
 VictoryLoop:
 	mov rdx, [PlayersHealth+r8*8] #Checks which person is still living
 	cmp rdx, 0
-	jge Victory
+	jg Victory                    #If the player has more than 0 health, declares them winner, otherwise, keeps searching for them
 	add r8, 1
 	jmp VictoryLoop
 
@@ -315,7 +314,7 @@ Victory:
 	call SetForeColor
 	mov rdx, [Players+r8*8]
 	call PrintZString
-	mov rdx, [PlayersNames+r8*8]
+	mov rdx, [PlayersNames+r8*8] #And show them their prize...
 	call PrintZString
 	mov rdx, 3
 	call SetForeColor
@@ -323,4 +322,4 @@ Victory:
 	call PrintZString
 	
 End:
-	call Exit
+	call Exit 
